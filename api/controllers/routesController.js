@@ -26,6 +26,20 @@ const routesController = {
 		}
 	},
 
+	getAllRoutes: async (req, res, next) => {
+		try {
+			const route = await routesModel.getAllRoutes();
+
+			if (route?.rows.length == 0) {
+				return new ApiResponseJson(res, 400, false, 'No routes found.');
+			}
+
+			new ApiResponseJson(res, 200, true, 'All Routes.', route.rows);
+		} catch (error) {
+			next(error);
+		}
+	},
+
 	getRouteById: async (req, res, next) => {
 		try {
 			const id = req.params?.id;

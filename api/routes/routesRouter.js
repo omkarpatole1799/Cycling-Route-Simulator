@@ -7,6 +7,9 @@ const routesController = require('../controllers/routesController.js');
 // creating new route
 router.post('/', routesController.createNewRoute);
 
+// getting all routes
+router.get('/', routesController.getAllRoutes)
+
 // getting route by id
 router.get('/:id', routesController.getRouteById);
 

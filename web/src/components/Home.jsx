@@ -4,6 +4,7 @@ import 'leaflet-draw/dist/leaflet.draw.js';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useRef, useState } from 'react';
 import SavePolylineModal from './SavePolylineModal.tsx';
+import UserRoutesList from './UserRoutesList.tsx';
 
 import useHttp from '../hooks/useHttp.tsx';
 import { toast } from 'react-toastify';
@@ -18,11 +19,18 @@ function Home() {
 		sendRequest: saveRouteRequest,
 	} = useHttp();
 
+	const {
+		isLoading: getSavedRoutesLoading,
+		data: savedRoutesData,
+		sendRequest: getSavedRoutesRequest,
+	} = useHttp();
+
 	const mapElRef = useRef(null);
 	const mapInstance = useRef(null);
 	const routeNameRef = useRef(null);
 
-	const [routes, setRoutes] = useState([]);
+	const [savedRoutes, setSavedRoutes] = useState([]);
+
 	const [showAddRouteModal, setShowAddRouteModal] = useState(false);
 
 	const [tempRoute, setTempRoute] = useState({
@@ -60,6 +68,7 @@ function Home() {
 
 			mapInstance.current.on('draw:created', function (e) {
 				const layer = e.layer;
+				layer.setStyle({ color: 'blue', weight: 3 });
 				const latlng = layer.getLatLngs();
 
 				if (isPolyLineValid(latlng)) {
@@ -78,13 +87,7 @@ function Home() {
 		}
 	}, []);
 
-	console.log(routes, '==routes==');
-
 	const handleAddRoute = async () => {
-		setRoutes((prev) => {
-			return [...prev, tempRoute.latlng];
-		});
-
 		setShowAddRouteModal(false);
 
 		console.log(routeNameRef.current.value, '==routeNameRef.current==');
@@ -95,7 +98,7 @@ function Home() {
 				type: 'LineString',
 				coordinates: tempRoute.latlng.map((_latlng) => [
 					_latlng.lat,
-					_latlng.lat,
+					_latlng.lng,
 				]),
 			},
 		};
@@ -110,6 +113,7 @@ function Home() {
 	useEffect(() => {
 		if (saveRouteData) {
 			toast(saveRouteData.usrMsg);
+			getAllRoutes();
 		}
 	}, [saveRouteData]);
 
@@ -126,14 +130,44 @@ function Home() {
 		return true;
 	}
 
+	useEffect(() => {
+		getAllRoutes();
+	}, []);
+
+	useEffect(() => {
+		if (savedRoutesData) {
+			setSavedRoutes(JSON.parse(savedRoutesData.data));
+		}
+	}, [savedRoutesData]);
+
+	useEffect(() => {
+		if (savedRoutes.length > 0) {
+			drawSavedRoutes();
+		}
+	}, [savedRoutes]);
+
+	async function getAllRoutes() {
+		await getSavedRoutesRequest(`${BACKEND_URL}/routes`);
+	}
+
+	function drawSavedRoutes() {
+		savedRoutes.forEach((route) => {
+			const geometry = JSON.parse(route.geometry);
+			const coordinates = geometry.coordinates.map(([lat, lng]) => [lat, lng]);
+
+			L.polyline(coordinates, { color: 'blue', weight: 3 }).addTo(
+				mapInstance.current
+			);
+		});
+	}
+
 	return (
 		<>
 			<div
 				ref={mapElRef}
 				className="w-full h-full"
-				style={{ height: '100vh' }}
+				style={{ height: '95vh' }}
 			></div>
-
 			<SavePolylineModal
 				routeNameRef={routeNameRef}
 				handleAddRoute={handleAddRoute}
@@ -141,6 +175,8 @@ function Home() {
 				setShowAddRouteModal={setShowAddRouteModal}
 				showAddRouteModal={showAddRouteModal}
 			></SavePolylineModal>
+
+			{savedRoutes.length > 0 && <UserRoutesList savedRoutes={savedRoutes} />}
 		</>
 	);
 }

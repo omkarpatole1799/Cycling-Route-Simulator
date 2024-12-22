@@ -14,6 +14,20 @@ const routesModel = {
 		);
 	},
 
+	getAllRoutes: async (id) => {
+		return await pgClient.query(
+			`SELECT 
+                id, 
+                user_id, 
+                name, 
+                ST_AsGeoJSON(geometry) as geometry, 
+                distance, 
+                created_at, 
+                updated_at
+            FROM routes`
+		);
+	},
+
 	getRouteById: async (id) => {
 		return await pgClient.query(
 			`SELECT 
@@ -44,7 +58,10 @@ const routesModel = {
 	},
 
 	deleteRoute: async (id) => {
-		return await pgClient.query(`DELETE FROM routes WHERE id = $1 RETURNING *`, [id]);
+		return await pgClient.query(
+			`DELETE FROM routes WHERE id = $1 RETURNING *`,
+			[id]
+		);
 	},
 };
 module.exports = routesModel;
