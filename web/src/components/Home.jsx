@@ -131,7 +131,7 @@ function Home() {
 
 	const handleCancelRoute = () => {
 		setShowAddRouteModal(false);
-		mapInstance.current.removeLayer(tempRoute.layer);
+		mapInstance.current.removeLayer(tempRoute.polyline);
 		setTempRoute({ layer: null, latlng: null, polyline: null });
 	};
 
