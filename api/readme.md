@@ -1,4 +1,108 @@
-# Route API Documentation
+[Architecture Overview](#architecture-overview)
+
+[Api Documentation](#route-api-documentation)
+
+[Simulation Api Documentation](#simulation-api-documentation)
+
+[Setup Instrucions](#setup-instructions)
+
+# <a name='architecture-overview'>**Architecture Overview**</a>
+
+### **1. Frontend Architecture**
+
+The frontend is built using **React**, leveraging the **Leaflet.js** library for interactive maps and **react-toastify** for user notifications, used **Typescript** for typesafety and **Tailwind CSS** for css styles . It consists of the following key components:
+
+- **Home Component**:
+
+  - Acts as the main entry point.
+  - Manages the Leaflet map instance and provides user interaction functionality.
+  - Connects to modals and lists for route management and simulation.
+
+- **SavePolylineModal**:
+
+  - A modal for saving newly drawn routes with a user-provided name.
+
+- **UserRoutesList**:
+
+  - Displays saved routes.
+  - Allows users to delete routes or pan the map to specific routes.
+
+- **RouteSimulation**:
+
+  - Handles the simulation of movement along a route.
+  - Manages start, pause, reset, and cancel actions.
+  - Updates the map with simulated position markers.
+
+**Technologies:**
+
+- **React**: Component-based UI.
+- **Leaflet.js**: Interactive mapping library.
+- **Tailwind CSS**: Styling for UI elements.
+- **TypeScript**: For better type safety.
+
+---
+
+### **2. Backend Architecture**
+
+The backend provides RESTful APIs to interact with the database and manage route operations and simulations.
+
+- **Endpoints**:
+  - **Save Route** (`POST /routes`): Saves a route's name and geometry data.
+  - **Fetch Routes** (`GET /routes`): Retrieves all saved routes.
+  - **Delete Route** (`DELETE /routes/:id`): Deletes a specific route by its ID.
+  - **Simulation Control**:
+    - **Start Simulation** (`POST /simulation/start`): Initiates route simulation.
+    - **Pause Simulation** (`POST /simulation/pause`): Pauses the ongoing simulation.
+    - **Reset Simulation** (`POST /simulation/reset`): Resets the simulation.
+
+**Technologies:**
+
+- **Node.js**: Backend runtime.
+- **Express.js**: Simplifies API creation.
+- **PostgreSQL + PostGIS**: For DB and storing GeoJSON data.
+
+---
+
+### **3. Database Architecture**
+
+The database layer stores route data, including metadata and geometry.
+
+- **Data Structure**:
+  - **Routes Collection/Table**:
+    - `id`: Unique identifier for the route.
+    - `name`: Name of the route.
+    - `geometry`: GeoJSON object storing the route's geographical data.
+    - `distance`: Distance of the polyline/route in meters.
+
+**Technologies:**
+
+- **PostgreSQL** (or equivalent): Relational database for structured data storage.
+- **PostGIS**: Extends PostgreSQL with spatial capabilities for storing GeoJSON.
+
+---
+
+### **4. Data Flow**
+
+1.  **User Interaction**:
+
+    - Users draw routes on the map or interact with existing ones (e.g., panning, deleting).
+    - The frontend communicates with the backend through RESTful API calls.
+
+2.  **Backend Processing**:
+
+    - Backend handles requests, performs CRUD operations on the database, and manages simulation states.
+
+3.  **Database**:
+
+    - Stores and retrieves route data as needed.
+
+4.  **Map Rendering**:
+
+    - The marker in frontend dynamically updates on the Leaflet map based on backend responses.
+
+---
+
+# <a name='route-api-documentation'>**Route API Documentation**</a>
 
 This document describes the available routes and API endpoints for managing routes. The API allows you to create, retrieve, update, and delete routes.
 
@@ -327,7 +431,7 @@ This document describes the available routes and API endpoints for managing rout
 
 ---
 
-# Simulation API Documentation
+# <a name='simulation-api-documentation'> Simulation API Documentation </a>
 
 This document provides details for the available endpoints to control the simulation process. The API allows you to start, pause, reset, and check the status of the simulation.
 
@@ -476,3 +580,29 @@ This document provides details for the available endpoints to control the simula
 - The simulation can be paused, reset, or checked for status at any time.
 - The simulation will complete once all steps have been processed.
 - To restart the simulation, it must be reset first.
+
+---
+
+# <a name="setup-instructions">**Setup Instructions**</a>
+
+### 1. Clone this reporitory
+
+```json
+	git clone https://github.com/omkarpatole1799/Cycling-Route-Simulator.git
+```
+
+### 2. Install packages (for API)
+
+```json
+	cd /api
+	npm install
+	npm start
+```
+
+### 3. Install packages (for WEB)
+
+```json
+	cd /web
+	npm install
+	npm run dev
+```
