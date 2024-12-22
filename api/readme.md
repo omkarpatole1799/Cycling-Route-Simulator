@@ -133,8 +133,12 @@ This document describes the available routes and API endpoints for managing rout
 
   ```json
   {
+  	"statusCode": 400,
   	"success": false,
-  	"message": "No routes found."
+  	"usrMsg": "No routes found.",
+  	"data": null,
+  	"respDataType": "json",
+  	"errMsg": null
   }
   ```
 
