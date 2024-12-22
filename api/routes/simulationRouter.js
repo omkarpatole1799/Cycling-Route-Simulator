@@ -2,18 +2,12 @@ const express = require('express');
 const router = express.Router();
 const simulationController = require('../controllers/simulationcontroller.js');
 
-// start simulation
-router.post('/start');
+router.post('/start', simulationController._startSimulation);
 
-// pause simulation
-router.post('/pause');
+router.post('/pause', simulationController.pauseSimulation);
 
-// reset simulation
-router.post('/reset');
+router.post('/reset', simulationController.resetSimulation);
+
+router.get('/status', simulationController.simulationStatus);
 
 module.exports = router;
-
-// References:
-// POST /api/simulate/start // Start simulation
-// POST /api/simulate/pause // Pause simulation
-// POST /api/simulate/reset // Reset simulation

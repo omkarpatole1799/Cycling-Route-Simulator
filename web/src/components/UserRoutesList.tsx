@@ -5,7 +5,13 @@ import Distance from '../assets/icons/Distance';
 import Eye from '../assets/icons/Eye';
 import Trash from '../assets/icons/Trash';
 
-function UserRoutesList({ savedRoutes, handleDeleteRoute, handlePan }) {
+function UserRoutesList({
+	savedRoutes,
+	handleDeleteRoute,
+	handlePan,
+	setShowSavedRoutesMenu,
+	showSavedRoutesMenu,
+}) {
 	const [speed, setSpeed] = useState('20');
 
 	const handleSpeedChange = (e) => {
@@ -36,7 +42,13 @@ function UserRoutesList({ savedRoutes, handleDeleteRoute, handlePan }) {
 	}
 
 	return (
-		<div className="p-5 absolute h-[100vh] w-[20rem] bg-white shadow-xl top-0 right-0 overflow-auto">
+		<div
+			className={`p-5 absolute h-[100vh] w-[20rem] bg-white shadow-xl top-0 right-0 overflow-auto ${
+				showSavedRoutesMenu
+					? 'opacity-1 pointer-events-auto visible'
+					: 'opacity-0 pointer-events-none invisible'
+			}`}
+		>
 			<h4 className="text-xl font-bold mb-3">My Routes</h4>
 			<label htmlFor="my-speed" className="font-semibold">
 				Speed (Km/hr)
