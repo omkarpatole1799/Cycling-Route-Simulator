@@ -71,7 +71,7 @@ function Home() {
 				},
 				edit: {
 					featureGroup: drawnItems,
-					remove: true,
+					remove: false,
 				},
 			});
 			mapInstance.current.addControl(drawControl);
@@ -99,9 +99,17 @@ function Home() {
 	}, []);
 
 	const handleAddRoute = async () => {
+		const routeName = routeNameRef.current.value;
+
+		if (!routeName || routeName == '') {
+			toast('Please enter route name.');
+			routeNameRef.current.focus();
+			return;
+		}
+
 		const requestData = {
 			userId: 1,
-			name: routeNameRef.current.value,
+			name: routeName,
 			geometry: {
 				type: 'LineString',
 				coordinates: tempRoute.latlng.map((_latlng) => [
@@ -124,6 +132,8 @@ function Home() {
 			setSavedRoutes(updatedRoutes);
 			mapInstance.current.removeLayer(tempRoute.polyline);
 			setTempRoute({ layer: null, latlng: null, polyline: null });
+
+			routeNameRef.current.value = '';
 
 			setShowAddRouteModal(false);
 		}
