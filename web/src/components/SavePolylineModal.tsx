@@ -1,8 +1,13 @@
-function SavePolylineModal({ handleCancelRoute, handleAddRoute, show }) {
+function SavePolylineModal({
+	handleCancelRoute,
+	handleAddRoute,
+	showAddRouteModal,
+	routeNameRef,
+}) {
 	return (
 		<div
 			className={`p-4 absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-white shadow-md rounded-md ${
-				!show ? 'opacity-0 pointer-events-none ' : ''
+				!showAddRouteModal ? 'opacity-0 pointer-events-none ' : ''
 			}`}
 		>
 			<div className="flex items-center justify-center flex-col gap-2">
@@ -13,6 +18,7 @@ function SavePolylineModal({ handleCancelRoute, handleAddRoute, show }) {
 						id="email"
 						className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-500 rounded-md p-3"
 						placeholder="Enter route name"
+						ref={routeNameRef}
 					/>
 				</div>
 
