@@ -6,7 +6,7 @@ function Loading() {
 			viewBox="0 0 24 24"
 			strokeWidth={1.5}
 			stroke="currentColor"
-			className="size-3 animate-spin"
+			className="size-4 animate-spin"
 		>
 			<path
 				strokeLinecap="round"

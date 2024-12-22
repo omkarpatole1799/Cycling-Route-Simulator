@@ -1,14 +1,15 @@
-import L from 'leaflet'; // Import leaflet
+import L, { LayerGroup, Map } from 'leaflet'; // Import leaflet
 import 'leaflet-draw/dist/leaflet.draw.css'; // Import leaflet-draw CSS
 import 'leaflet-draw/dist/leaflet.draw.js'; // Import leaflet-draw JS
 import 'leaflet/dist/leaflet.css'; // Import leaflet CSS
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
+import Close from '../assets/icons/Close.tsx';
 import useHttp from '../hooks/useHttp.tsx';
+import { Route, SaveRouteReqData, TemporaryRoute } from '../types/types.tsx';
 import RouteSimulation from './RouteSimulation.tsx';
 import SavePolylineModal from './SavePolylineModal.tsx';
 import UserRoutesList from './UserRoutesList.tsx';
-import Close from '../assets/icons/Close.tsx';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -18,34 +19,26 @@ function Home() {
 	const {
 		isLoading: saveRouteLoading,
 		data: saveRouteData,
-		error: saveRouteError,
 		sendRequest: saveRouteRequest,
 	} = useHttp();
 
-	const {
-		isLoading: getSavedRoutesLoading,
-		data: savedRoutesData,
-		sendRequest: getSavedRoutesRequest,
-	} = useHttp();
+	const { data: savedRoutesData, sendRequest: getSavedRoutesRequest } =
+		useHttp();
 
-	const {
-		isLoading: deleteRouteLoading,
-		data: deleteRouteData,
-		sendRequest: deleteRouteRequest,
-	} = useHttp();
+	const { data: deleteRouteData, sendRequest: deleteRouteRequest } = useHttp();
 
 	const mapElRef = useRef(null);
-	const mapInstance = useRef(null);
+	const mapInstance = useRef<Map | null | LayerGroup<any>>(null);
 	const polyLinesref = useRef([]);
-	const routeNameRef = useRef(null);
+	const routeNameRef = useRef<HTMLInputElement | null>(null);
 	const deleteRouteRef = useRef(null);
 
 	const [savedRoutes, setSavedRoutes] = useState([]);
-	const [selectedRoute, setSelectedRoute] = useState(null); 
+	const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
 
-	const [showAddRouteModal, setShowAddRouteModal] = useState(false);
+	const [showAddRouteModal, setShowAddRouteModal] = useState<boolean>(false);
 
-	const [tempRoute, setTempRoute] = useState({
+	const [tempRoute, setTempRoute] = useState<TemporaryRoute>({
 		layer: null,
 		latlng: null,
 		polyline: null,
@@ -90,42 +83,48 @@ function Home() {
 					setTempRoute(() => ({
 						layer,
 						latlng,
-						polyline: polyline,
+						polyline,
 					}));
 					setShowAddRouteModal(true);
 				}
 			});
 
 			return () => {
-				mapInstance.current.remove();
+				if (mapInstance?.current) {
+					mapInstance.current.remove();
+				}
 			};
 		}
 	}, []);
 
 	const handleAddRoute = async () => {
-		const routeName = routeNameRef.current.value;
+		const routeName = routeNameRef?.current?.value;
 
 		if (!routeName || routeName === '') {
 			toast('Please enter route name.');
-			routeNameRef.current.focus();
+			routeNameRef?.current?.focus();
 			return;
 		}
 
-		const requestData = {
-			userId: 1,
-			name: routeName,
-			geometry: {
-				type: 'LineString',
-				coordinates: tempRoute.latlng.map((_latlng) => [
-					_latlng.lat,
-					_latlng.lng,
-				]),
-			},
-		};
+		if (tempRoute.latlng) {
+			let _coodinates = tempRoute.latlng.map((_latlng) => [
+				_latlng.lat,
+				_latlng.lng,
+			]);
 
-		await saveRouteRequest(`${BACKEND_URL}/routes`, 'POST', requestData, {
-			'Content-Type': 'application/json',
-		});
+			const requestData: SaveRouteReqData = {
+				userId: 1,
+				name: routeName,
+				geometry: {
+					type: 'LineString',
+					coordinates: _coodinates,
+				},
+			};
+
+			await saveRouteRequest(`${BACKEND_URL}/routes`, 'POST', requestData, {
+				'Content-Type': 'application/json',
+			});
+		}
 	};
 
 	useEffect(() => {
@@ -145,7 +144,10 @@ function Home() {
 
 	const handleCancelRoute = () => {
 		setShowAddRouteModal(false);
-		mapInstance.current.removeLayer(tempRoute.polyline);
+		if (mapInstance?.current) {
+			mapInstance?.current.removeLayer(tempRoute.polyline);
+		}
+
 		setTempRoute({ layer: null, latlng: null, polyline: null });
 	};
 
@@ -176,10 +178,11 @@ function Home() {
 
 	function drawSavedRoutes() {
 		polyLinesref.current.forEach((polyline) => {
-			mapInstance.current.removeLayer(polyline);
+			if (mapInstance?.current) {
+				mapInstance.current.removeLayer(polyline);
+			}
 		});
 		polyLinesref.current = [];
-		const polylines = [];
 		savedRoutes.forEach((route) => {
 			const geometry = JSON.parse(route.geometry);
 			const coordinates = geometry.coordinates.map(([lat, lng]) => [lat, lng]);
@@ -220,17 +223,19 @@ function Home() {
 	}, [deleteRouteData]);
 
 	// ======================================= view/pan toward routes =================================
-	function handlePan(id) {
-		const panRoute = savedRoutes.find((_route) => {
-			if (_route.id === id) {
-				return _route;
+	function handlePan(id: number) {
+		const panRoute = savedRoutes.find((_route: Route) => _route.id === id) as
+			| Route
+			| undefined;
+
+		if (panRoute) {
+			const panRouteCoordinates = JSON.parse(panRoute.geometry).coordinates;
+			if (mapInstance?.current) {
+				mapInstance.current.panTo(panRouteCoordinates[0]);
 			}
-		});
 
-		const panRouteCoordinates = JSON.parse(panRoute.geometry).coordinates;
-		mapInstance.current.panTo(panRouteCoordinates[0]);
-
-		setSelectedRoute(panRoute);
+			setSelectedRoute(panRoute);
+		}
 	}
 
 	return (
@@ -238,7 +243,7 @@ function Home() {
 			<div
 				ref={mapElRef}
 				className="w-full h-full"
-				style={{ height: '95vh' }}
+				style={{ height: '99vh' }}
 			></div>
 
 			<SavePolylineModal

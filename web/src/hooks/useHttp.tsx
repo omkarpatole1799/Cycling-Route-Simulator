@@ -1,16 +1,15 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { ApiResponse } from '../types/types';
 
 const useHttp = () => {
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState(null);
-	const [data, setData] = useState(null);
+	const [data, setData] = useState<ApiResponse | null>(null);
 
 	const sendRequest = useCallback(
 		async (url, method = 'GET', body = null, headers = {}) => {
 			setIsLoading(true);
-			setError(null); // Reset previous errors
 
 			try {
 				const response = await axios({
@@ -28,7 +27,6 @@ const useHttp = () => {
 				} else {
 					toast(err.response.data.usrMsg);
 				}
-				// setError(err.message || 'Something went wrong!');
 			} finally {
 				setIsLoading(false);
 			}
@@ -39,7 +37,6 @@ const useHttp = () => {
 	return {
 		isLoading,
 		data,
-		error,
 		sendRequest,
 	};
 };
