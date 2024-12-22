@@ -204,6 +204,19 @@ function Home() {
 		}
 	}, [deleteRouteData]);
 
+	// ======================================= view/pan toward routes =================================
+
+	function handlePan(id) {
+		const panRoute = savedRoutes.find((_route) => {
+			if (_route.id === id) {
+				return _route;
+			}
+		});
+
+		const panRouteCoordinates = JSON.parse(panRoute.geometry).coordinates;
+		mapInstance.current.panTo(panRouteCoordinates[0]);
+	}
+
 	return (
 		<>
 			<div
@@ -222,6 +235,7 @@ function Home() {
 			<UserRoutesList
 				savedRoutes={savedRoutes}
 				handleDeleteRoute={handleDeleteRoute}
+				handlePan={handlePan}
 			/>
 		</>
 	);
