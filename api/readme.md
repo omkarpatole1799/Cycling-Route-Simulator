@@ -69,8 +69,12 @@ This document describes the available routes and API endpoints for managing rout
 
   ```json
   {
+  	"statusCode": 400,
   	"success": false,
-  	"message": "Missing required fields (User Id, Name and Geometry)."
+  	"usrMsg": "Missing required fields (User Id, Name and Geometry).",
+  	"data": null,
+  	"respDataType": "json",
+  	"errMsg": null
   }
   ```
 
@@ -178,8 +182,12 @@ This document describes the available routes and API endpoints for managing rout
 
   ```json
   {
+  	"statusCode": 400,
   	"success": false,
-  	"message": "Please provide valid route id."
+  	"usrMsg": "No routes found.",
+  	"data": null,
+  	"respDataType": "json",
+  	"errMsg": null
   }
   ```
 
@@ -243,8 +251,12 @@ This document describes the available routes and API endpoints for managing rout
 
   ```json
   {
+  	"statusCode": 400,
   	"success": false,
-  	"message": "Missing required fields (Name and Geometry)."
+  	"usrMsg": "Missing required fields (User Id, Name and Geometry).",
+  	"data": null,
+  	"respDataType": "json",
+  	"errMsg": null
   }
   ```
 
@@ -292,8 +304,12 @@ This document describes the available routes and API endpoints for managing rout
 
   ```json
   {
+  	"statusCode": 400,
   	"success": false,
-  	"message": "Please provide valid route id."
+  	"usrMsg": "Please provide valid route id.",
+  	"data": null,
+  	"respDataType": "json",
+  	"errMsg": null
   }
   ```
 
