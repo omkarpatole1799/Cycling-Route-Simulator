@@ -6,7 +6,7 @@ function App() {
 	return (
 		<div className="relative">
 			<Home></Home>;
-			<ToastContainer />
+			<ToastContainer position="top-center" />
 		</div>
 	);
 }

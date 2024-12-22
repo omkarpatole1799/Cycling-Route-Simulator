@@ -25,9 +25,17 @@ function Home() {
 		sendRequest: getSavedRoutesRequest,
 	} = useHttp();
 
+	const {
+		isLoading: deleteRouteLoading,
+		data: deleteRouteData,
+		sendRequest: deleteRouteRequest,
+	} = useHttp();
+
 	const mapElRef = useRef(null);
 	const mapInstance = useRef(null);
+	const polyLinesref = useRef([]);
 	const routeNameRef = useRef(null);
+	const deleteRouteRef = useRef(null);
 
 	const [savedRoutes, setSavedRoutes] = useState([]);
 
@@ -36,6 +44,7 @@ function Home() {
 	const [tempRoute, setTempRoute] = useState({
 		layer: null,
 		latlng: null,
+		polyline: null,
 	});
 
 	useEffect(() => {
@@ -72,10 +81,11 @@ function Home() {
 				const latlng = layer.getLatLngs();
 
 				if (isPolyLineValid(latlng)) {
-					mapInstance.current.addLayer(layer);
+					const polyline = L.polyline(latlng).addTo(mapInstance.current);
 					setTempRoute(() => ({
 						layer,
 						latlng,
+						polyline: polyline,
 					}));
 					setShowAddRouteModal(true);
 				}
@@ -90,7 +100,6 @@ function Home() {
 	const handleAddRoute = async () => {
 		setShowAddRouteModal(false);
 
-		console.log(routeNameRef.current.value, '==routeNameRef.current==');
 		const requestData = {
 			userId: 1,
 			name: routeNameRef.current.value,
@@ -106,21 +115,23 @@ function Home() {
 		await saveRouteRequest(`${BACKEND_URL}/routes`, 'POST', requestData, {
 			'Content-Type': 'application/json',
 		});
-
-		setTempRoute({ layer: null, latlng: null });
 	};
 
 	useEffect(() => {
 		if (saveRouteData) {
 			toast(saveRouteData.usrMsg);
-			getAllRoutes();
+			const newRoute = JSON.parse(saveRouteData.data);
+			const updatedRoutes = [...savedRoutes, newRoute];
+			setSavedRoutes(updatedRoutes);
+			mapInstance.current.removeLayer(tempRoute.polyline);
+			setTempRoute({ layer: null, latlng: null, polyline: null });
 		}
 	}, [saveRouteData]);
 
 	const handleCancelRoute = () => {
 		setShowAddRouteModal(false);
 		mapInstance.current.removeLayer(tempRoute.layer);
-		setTempRoute({ layer: null, latlng: null });
+		setTempRoute({ layer: null, latlng: null, polyline: null });
 	};
 
 	function isPolyLineValid(latlng) {
@@ -141,9 +152,7 @@ function Home() {
 	}, [savedRoutesData]);
 
 	useEffect(() => {
-		if (savedRoutes.length > 0) {
-			drawSavedRoutes();
-		}
+		drawSavedRoutes();
 	}, [savedRoutes]);
 
 	async function getAllRoutes() {
@@ -151,15 +160,49 @@ function Home() {
 	}
 
 	function drawSavedRoutes() {
+		polyLinesref.current.forEach((polyline) => {
+			mapInstance.current.removeLayer(polyline);
+		});
+		polyLinesref.current = [];
+		const polylines = [];
 		savedRoutes.forEach((route) => {
 			const geometry = JSON.parse(route.geometry);
 			const coordinates = geometry.coordinates.map(([lat, lng]) => [lat, lng]);
 
-			L.polyline(coordinates, { color: 'blue', weight: 3 }).addTo(
-				mapInstance.current
-			);
+			const polyline = L.polyline(coordinates, {
+				color: 'blue',
+				weight: 3,
+			}).addTo(mapInstance.current);
+
+			polyLinesref.current.push(polyline);
 		});
 	}
+
+	// =================================== deleting route =============================
+	async function handleDeleteRoute(id) {
+		if (!id) {
+			toast('Please provide valid delete id.');
+			return false;
+		}
+		deleteRouteRef.current = id;
+		await deleteRouteRequest(`${BACKEND_URL}/routes/${Number(id)}`, 'DELETE');
+	}
+	function removeRouteLine(id) {
+		const routeToRemove = savedRoutes.filter((_route) => _route.id === id);
+		console.log(routeToRemove, '==routeToRemove==');
+		mapInstance.current.removeLayer(routeToRemove[0]);
+	}
+
+	useEffect(() => {
+		if (deleteRouteData) {
+			toast(deleteRouteData.usrMsg);
+			const updatedRoutes = savedRoutes.filter(
+				(_route) => _route.id !== deleteRouteRef.current
+			);
+			setSavedRoutes(updatedRoutes);
+			removeRouteLine(deleteRouteRef.current);
+		}
+	}, [deleteRouteData]);
 
 	return (
 		<>
@@ -176,7 +219,10 @@ function Home() {
 				showAddRouteModal={showAddRouteModal}
 			></SavePolylineModal>
 
-			{savedRoutes.length > 0 && <UserRoutesList savedRoutes={savedRoutes} />}
+			<UserRoutesList
+				savedRoutes={savedRoutes}
+				handleDeleteRoute={handleDeleteRoute}
+			/>
 		</>
 	);
 }

@@ -8,8 +8,8 @@ const routesModel = {
                 name, 
                 geometry, 
                 distance)
-            VALUES ($1, $2, ST_GeomFromGeoJSON($3), ST_Length(ST_GeomFromGeoJSON($3)))
-                     RETURNING *`,
+            VALUES ($1, $2, ST_GeomFromGeoJSON($3), ST_Length(ST_Transform(ST_GeomFromGeoJSON($3), 3857)))
+                     RETURNING id, user_id, name, ST_AsGeoJSON(geometry) as geometry, distance`,
 			[data.userId, data.name, JSON.stringify(data.geometry)]
 		);
 	},
