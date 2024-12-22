@@ -71,6 +71,7 @@ function Home() {
 				},
 				edit: {
 					featureGroup: drawnItems,
+					remove: true,
 				},
 			});
 			mapInstance.current.addControl(drawControl);
@@ -98,8 +99,6 @@ function Home() {
 	}, []);
 
 	const handleAddRoute = async () => {
-		setShowAddRouteModal(false);
-
 		const requestData = {
 			userId: 1,
 			name: routeNameRef.current.value,
@@ -125,6 +124,8 @@ function Home() {
 			setSavedRoutes(updatedRoutes);
 			mapInstance.current.removeLayer(tempRoute.polyline);
 			setTempRoute({ layer: null, latlng: null, polyline: null });
+
+			setShowAddRouteModal(false);
 		}
 	}, [saveRouteData]);
 
@@ -230,6 +231,7 @@ function Home() {
 				handleCancelRoute={handleCancelRoute}
 				setShowAddRouteModal={setShowAddRouteModal}
 				showAddRouteModal={showAddRouteModal}
+				saveRouteLoading={saveRouteLoading}
 			></SavePolylineModal>
 
 			<UserRoutesList
