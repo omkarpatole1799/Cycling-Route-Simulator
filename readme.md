@@ -6,6 +6,24 @@
 
 [Setup Instrucions](#setup-instructions)
 
+[Screenshots](#screen-shots)
+
+.
+
+.
+
+.
+
+---
+
+# <a name='screen-shots'>Screenshots</a>
+
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+
+---
+
 # <a name='architecture-overview'>**Architecture Overview**</a>
 
 ### **1. Frontend Architecture**
