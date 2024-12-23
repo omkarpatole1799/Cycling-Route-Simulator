@@ -242,7 +242,7 @@ function Home() {
 		<>
 			<div
 				ref={mapElRef}
-				className="w-full h-full"
+				className="w-full h-full z-0"
 				style={{ height: '99vh' }}
 			></div>
 
@@ -250,7 +250,6 @@ function Home() {
 				routeNameRef={routeNameRef}
 				handleAddRoute={handleAddRoute}
 				handleCancelRoute={handleCancelRoute}
-				setShowAddRouteModal={setShowAddRouteModal}
 				showAddRouteModal={showAddRouteModal}
 				saveRouteLoading={saveRouteLoading}
 			/>
@@ -265,7 +264,7 @@ function Home() {
 
 			<button
 				type="button"
-				className="absolute top-3 right-5 inline-flex items-center px-1 py-1 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+				className=" absolute top-3 right-5 inline-flex items-center px-1 py-1 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 				onClick={() => setShowSavedRoutesMenu(!showSavedRoutesMenu)}
 			>
 				{!showSavedRoutesMenu && <span>My Routes</span>}
